@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOTTask</title>
+</head>
+
+<body>
+    <form id="dataform">
+        <label for="name">Name</label> <br>
+        <input type="text" name="name" id="name" placeholder="Enter your name">
+        <br> <br>
+        <label for="age">Age</label> <br>
+        <input type="number" name="age" id="age" placeholder="Enter your age">
+        <br> <br>
+        <input type="radio" id="male" name="gender" value="male">
+        <label for="male">Male</label>
+        <br>
+        <input type="radio" id="female" name="gender" value="female">
+        <label for="female">Female</label>
+        <br> <br>
+        <button type="submit" id="btn">Submit</button>
+    </form>
+    <hr>
+    <h1>Data List</h1>
+    <ul id="datalist"></ul>
+</body>
+
+<script>
+    let HOST = location.origin.replace(/^http/, 'ws');
+    let ws = new WebSocket(HOST);
+
+    let form = document.getElementById('dataform');
+    let dataList = document.getElementById('datalist');
+
+    form.onsubmit = function (event) {
+        let name = document.querySelector("#name").value;
+        let age = document.querySelector("#age").value;
+        let gender = document.querySelector('input[name="gender"]:checked')?.value;
+
+        let data = { name: name, age: age, gender: gender };
+        ws.send(JSON.stringify(data));
+        form.reset();
+    };
+
+    ws.onopen = function () {
+        console.log("Connected to server");
+    };
+
+    ws.onmessage = function (event) {
+        let data = JSON.parse(event.data);
+        dataList.innerHTML = '';
+
+        data.forEach(function (item) {
+            let listItem = document.createElement('li');
+            listItem.textContent = `Name : ${item.name}, Age : ${item.age}, Gender : ${item.gender}`;
+            dataList.appendChild(listItem);
+        });
+    };
+</script>
+
+</html>
